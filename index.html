@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PALUNIO – Coastal Haven</title>
+<meta name="description" content="PALUNIO – a cozy island life by the sea.">
+<link rel="icon" href="images/hero.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fff4dc;
+    --coral: #ff7a59;
+    --teal: #18b6b0;
+    --gold: #ffc94d;
+    --ink: #0b1c33;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scrollbar-width: none; }
+  html::-webkit-scrollbar { display: none; }
+  body {
+    background: #1586cf;
+    color: #fff;
+    font-family: "Nunito", "Segoe UI", system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+  #scroller { height: 800vh; }
+
+  /* ---------- fixed layers ---------- */
+  #sky, #sun, #gl, #stage, #hero, #captions, #finale { position: fixed; inset: 0; }
+  #sky { z-index: 0; }
+  #sun {
+    z-index: 0; inset: auto; left: 72%; top: 0;
+    width: 70vmin; height: 70vmin; margin-left: -35vmin; margin-top: -35vmin;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fffbe6 0%, rgba(255,236,170,.85) 9%, rgba(255,214,120,.35) 28%, rgba(255,200,120,0) 62%);
+    will-change: transform, opacity;
+  }
+  #gl { z-index: 1; width: 100%; height: 100%; display: block; }
+  #stage { z-index: 2; perspective: 1000px; overflow: hidden; pointer-events: none; }
+  #world { position: absolute; left: 50%; top: 50%; transform-style: preserve-3d; will-change: transform; }
+
+  /* ---------- floating glass cards ---------- */
+  .card {
+    --w: min(62vw, 900px);
+    position: absolute;
+    width: var(--w);
+    left: calc(var(--w) / -2);
+    top: calc(var(--w) * 9 / -32);
+    padding: 10px;
+    border-radius: 28px;
+    background: linear-gradient(135deg, rgba(255,255,255,.34), rgba(255,255,255,.10));
+    border: 1px solid rgba(255,255,255,.55);
+    box-shadow: 0 40px 90px rgba(4, 22, 50, .45), inset 0 1px 0 rgba(255,255,255,.6);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    visibility: hidden;
+    will-change: transform, opacity;
+  }
+  .card img {
+    display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
+    border-radius: 19px;
+  }
+  .card::after { /* glass sheen */
+    content: ""; position: absolute; inset: 10px; border-radius: 19px;
+    background: linear-gradient(115deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 72%, rgba(255,255,255,.14) 100%);
+    pointer-events: none;
+  }
+  .chip {
+    position: absolute; left: 24px; top: 24px; z-index: 1;
+    padding: 7px 14px; border-radius: 999px;
+    font: 700 13px/1 "Nunito", sans-serif; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink); background: rgba(255,244,220,.92);
+    box-shadow: 0 6px 18px rgba(4,22,50,.25);
+  }
+
+  /* ---------- nav ---------- */
+  nav {
+    position: fixed; z-index: 5; left: 0; right: 0; top: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 22px clamp(18px, 4vw, 48px);
+  }
+  .brand { font: 700 22px/1 "Fredoka", sans-serif; letter-spacing: .14em; text-shadow: 0 2px 12px rgba(4,22,50,.35); }
+  .pill {
+    display: inline-block; padding: 10px 18px; border-radius: 999px;
+    font: 800 13px/1 "Nunito", sans-serif; letter-spacing: .08em; text-transform: uppercase;
+    color: #fff; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.5);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  }
+
+  /* ---------- hero ---------- */
+  #hero {
+    z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; pointer-events: none; padding: 0 16px; will-change: transform, opacity;
+  }
+  .eyebrow { font: 800 clamp(12px, 1.3vw, 16px)/1 "Nunito", sans-serif; letter-spacing: .5em; text-transform: uppercase; margin-right: -.5em; opacity: .95; }
+  h1 {
+    font: 700 clamp(60px, 16.5vw, 250px)/.95 "Fredoka", sans-serif; letter-spacing: .04em;
+    margin: 2vh 0 2.4vh;
+    background: linear-gradient(180deg, #ffffff 30%, #ffe9b8 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 10px 30px rgba(4, 40, 90, .35));
+  }
+  .tag { font: 700 clamp(17px, 2vw, 26px)/1.3 "Nunito", sans-serif; text-shadow: 0 2px 14px rgba(4,22,50,.35); }
+  .hint {
+    position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%);
+    font: 800 12px/1 "Nunito", sans-serif; letter-spacing: .3em; text-transform: uppercase; margin-right: -.3em;
+    display: flex; flex-direction: column; align-items: center; gap: 12px; opacity: .9;
+  }
+  .hint i { width: 2px; height: 44px; border-radius: 2px; background: linear-gradient(#fff, rgba(255,255,255,0)); animation: drip 1.8s ease-in-out infinite; transform-origin: top; }
+  @keyframes drip { 0% { transform: scaleY(0); opacity: 0; } 40% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1) translateY(22px); opacity: 0; } }
+
+  /* ---------- captions ---------- */
+  #captions { z-index: 3; pointer-events: none; }
+  .cap {
+    position: absolute; top: 50%; width: min(30vw, 400px);
+    opacity: 0; will-change: transform, opacity;
+  }
+  .cap.left { left: clamp(18px, 6vw, 96px); }
+  .cap.right { right: clamp(18px, 6vw, 96px); }
+  .cap .num { font: 700 15px/1 "Fredoka", sans-serif; letter-spacing: .2em; color: var(--gold); text-shadow: 0 2px 10px rgba(4,22,50,.4); }
+  .cap h2 { font: 700 clamp(34px, 4.6vw, 68px)/1 "Fredoka", sans-serif; margin: 14px 0 16px; text-shadow: 0 6px 26px rgba(4,22,50,.4); }
+  .cap p { font: 700 clamp(15px, 1.35vw, 19px)/1.55 "Nunito", sans-serif; text-shadow: 0 2px 14px rgba(4,22,50,.5); }
+
+  /* ---------- finale ---------- */
+  #finale {
+    z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 0 20px; opacity: 0; visibility: hidden; will-change: transform, opacity;
+  }
+  .portrait {
+    width: clamp(150px, 26vmin, 260px); aspect-ratio: 1; border-radius: 30%;
+    padding: 8px; background: linear-gradient(135deg, rgba(255,255,255,.5), rgba(255,255,255,.12));
+    border: 1px solid rgba(255,255,255,.6);
+    box-shadow: 0 30px 80px rgba(0, 8, 30, .6), 0 0 90px rgba(24, 182, 176, .35);
+  }
+  .portrait img { width: 100%; height: 100%; object-fit: cover; border-radius: 27%; display: block; }
+  #finale h2 { font: 700 clamp(36px, 6vw, 84px)/1.02 "Fredoka", sans-serif; margin: 4vh 0 1.6vh; }
+  #finale p { font: 700 clamp(15px, 1.5vw, 20px)/1.5 "Nunito", sans-serif; opacity: .9; max-width: 34em; }
+  .cta {
+    margin-top: 3.4vh; padding: 16px 30px; border-radius: 999px;
+    font: 800 15px/1 "Nunito", sans-serif; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink); background: linear-gradient(180deg, #ffe08a, var(--gold));
+    box-shadow: 0 14px 40px rgba(255, 201, 77, .4), inset 0 1px 0 rgba(255,255,255,.7);
+  }
+  .foot { position: absolute; bottom: 22px; font: 700 12px/1 "Nunito", sans-serif; letter-spacing: .12em; opacity: .6; }
+
+  /* ---------- progress dots ---------- */
+  #dots { position: fixed; z-index: 5; right: clamp(10px, 2vw, 26px); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 4px; }
+  #dots button { width: 22px; height: 22px; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+  #dots button::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.45); transition: transform .3s, background .3s; }
+  #dots button.on::before { background: #fff; transform: scale(1.7); }
+
+  /* ---------- phones ---------- */
+  @media (max-width: 800px) {
+    .card { --w: 90vw; padding: 7px; border-radius: 20px; }
+    .card img { border-radius: 14px; }
+    .card::after { inset: 7px; border-radius: 14px; }
+    .chip { left: 16px; top: 16px; font-size: 11px; }
+    .cap, .cap.left, .cap.right { left: 22px; right: 22px; width: auto; top: auto; bottom: 9vh; text-align: center; }
+    #dots { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sky"></div>
+<div id="sun"></div>
+<canvas id="gl"></canvas>
+
+<div id="stage"><div id="world">
+  <figure class="card"><span class="chip">Town Plaza</span><img src="images/plaza.jpg" alt="The town plaza with its fountain and clock tower"></figure>
+  <figure class="card"><span class="chip">Harbour</span><img src="images/harbour.jpg" alt="Boats moored along the wooden docks"></figure>
+  <figure class="card"><span class="chip">Hometown</span><img src="images/hometown.jpg" alt="Cottages around the hometown green"></figure>
+  <figure class="card"><span class="chip">Garden</span><img src="images/farm.jpg" alt="A garden plot with ripe carrots beside a cottage"></figure>
+  <figure class="card"><span class="chip">Forest Park</span><img src="images/forest.jpg" alt="A paved trail winding through the forest park"></figure>
+  <figure class="card"><span class="chip">After Dark</span><img src="images/night.jpg" alt="The plaza at night, lit by street lamps"></figure>
+</div></div>
+
+<nav>
+  <div class="brand">PALUNIO</div>
+  <span class="pill">Coming soon</span>
+</nav>
+
+<section id="hero">
+  <div class="eyebrow">Coastal Haven</div>
+  <h1>PALUNIO</h1>
+  <div class="tag">A cozy island life by the sea.</div>
+  <div class="hint">Scroll<i></i></div>
+</section>
+
+<div id="captions">
+  <article class="cap"><div class="num">01</div><h2>Town Plaza</h2><p>Meet by the fountain. Shops, cafés and a clock tower ring a sunny square strung with bunting.</p></article>
+  <article class="cap"><div class="num">02</div><h2>The Harbour</h2><p>Wooden docks, white sails and a sea that never sits still. Wander the quay and watch the boats.</p></article>
+  <article class="cap"><div class="num">03</div><h2>Your Hometown</h2><p>A cottage of your own on a quiet green, with neighbours next door and a market stall in the middle.</p></article>
+  <article class="cap"><div class="num">04</div><h2>Grow &amp; Trade</h2><p>Plant a seed, watch it grow, pull up a harvest. Then carry it to the market and trade.</p></article>
+  <article class="cap"><div class="num">05</div><h2>Forest Park</h2><p>Follow the trail under palms and pines to picnic tables, a lake and a waterfall.</p></article>
+  <article class="cap"><div class="num">06</div><h2>After Dark</h2><p>The lamps come on and the island changes mood. Day turns to night while you play.</p></article>
+</div>
+
+<section id="finale">
+  <div class="portrait"><img src="images/hero.jpg" alt="The PALUNIO explorer in a bucket hat, smiling by the sea"></div>
+  <h2>Your island is waiting.</h2>
+  <p>PALUNIO is in development for mobile.</p>
+  <span class="cta">Coming soon</span>
+  <div class="foot">© 2026 PALUNIO</div>
+</section>
+
+<div id="dots"></div>
+<div id="scroller"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ================= helpers ================= */
+  var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+  var lerp = function (a, b, t) { return a + (b - a) * t; };
+  var smooth = function (a, b, v) { var t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+  var hex = function (h) { return [(h >> 16) & 255, (h >> 8) & 255, h & 255]; };
+  var mix3 = function (a, b, t) { return [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)]; };
+  var rgb = function (c) { return "rgb(" + (c[0] | 0) + "," + (c[1] | 0) + "," + (c[2] | 0) + ")"; };
+
+  /* ================= timeline =================
+     T runs 0 → 7:  0 = title, 1–6 = the six cards, 7 = ending */
+  var cards = [].slice.call(document.querySelectorAll(".card"));
+  var caps = [].slice.call(document.querySelectorAll(".cap"));
+  var N = cards.length, END = N + 1;
+  var SPACING = 1500;            // distance between cards, in px of depth
+  caps.forEach(function (c, i) { c.classList.add(i % 2 === 0 ? "left" : "right"); });
+
+  var hero = document.getElementById("hero");
+  var finale = document.getElementById("finale");
+  var sky = document.getElementById("sky");
+  var sun = document.getElementById("sun");
+  var world = document.getElementById("world");
+  var dotsBox = document.getElementById("dots");
+
+  var dots = [];
+  for (var d = 0; d <= END; d++) {
+    (function (i) {
+      var b = document.createElement("button");
+      b.setAttribute("aria-label", "Go to section " + (i + 1));
+      b.onclick = function () {
+        var max = document.documentElement.scrollHeight - innerHeight;
+        window.scrollTo({ top: (i / END) * max, behavior: "smooth" });
+      };
+      dotsBox.appendChild(b); dots.push(b);
+    })(d);
+  }
+
+  /* sky colours along the journey: [T, top colour, bottom colour] */
+  var SKY = [
+    [0.0, hex(0x1479d6), hex(0x23c4cf)],
+    [3.2, hex(0x1b86d8), hex(0x3fd0c4)],
+    [3.8, hex(0x7b8fe6), hex(0xf4a6b8)],
+    [4.4, hex(0xf2935c), hex(0xe4577a)],
+    [5.2, hex(0x6b3f8f), hex(0x2a2f73)],
+    [6.0, hex(0x070d2c), hex(0x15285e)],
+    [7.0, hex(0x050a24), hex(0x112250)]
+  ];
+  function skyAt(T) {
+    for (var i = 0; i < SKY.length - 1; i++) {
+      if (T <= SKY[i + 1][0]) {
+        var k = clamp((T - SKY[i][0]) / (SKY[i + 1][0] - SKY[i][0]), 0, 1);
+        return [mix3(SKY[i][1], SKY[i + 1][1], k), mix3(SKY[i][2], SKY[i + 1][2], k)];
+      }
+    }
+    return [SKY[SKY.length - 1][1], SKY[SKY.length - 1][2]];
+  }
+
+  /* ================= input ================= */
+  var target = 0, cur = 0;           // scroll progress 0..1 (target and smoothed)
+  var mx = 0, my = 0, smx = 0, smy = 0;
+  function readScroll() {
+    var max = document.documentElement.scrollHeight - innerHeight;
+    target = max > 0 ? clamp(scrollY / max, 0, 1) : 0;
+  }
+  addEventListener("scroll", readScroll, { passive: true });
+  addEventListener("pointermove", function (e) {
+    mx = e.clientX / innerWidth * 2 - 1; my = e.clientY / innerHeight * 2 - 1;
+  }, { passive: true });
+  readScroll(); cur = target;
+
+  /* ================= 3D background (Three.js) ================= */
+  var gl = null;
+  try { if (window.THREE) gl = initGL(); } catch (err) { console.warn("3D background off:", err); }
+
+  function initGL() {
+    var canvas = document.getElementById("gl");
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
+    camera.position.set(0, 0.6, 4);
+
+    var px = renderer.getPixelRatio();
+    var pointFrag = [
+      "varying float vA; varying vec3 vC;",
+      "void main(){",
+      "  float d = length(gl_PointCoord - 0.5);",
+      "  float a = smoothstep(0.5, 0.0, d);",
+      "  gl_FragColor = vec4(vC, a * a * vA);",
+      "}"].join("\n");
+
+    /* --- a sea made of points --- */
+    var COLS = 150, ROWS = 90, DEPTH = 62;
+    var wp = new Float32Array(COLS * ROWS * 3), n = 0;
+    for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) {
+      wp[n++] = (c / (COLS - 1) - 0.5) * 90; wp[n++] = 0; wp[n++] = r / ROWS * DEPTH;
+    }
+    var seaGeo = new THREE.BufferGeometry();
+    seaGeo.setAttribute("position", new THREE.BufferAttribute(wp, 3));
+    var seaMat = new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      uniforms: { uTime: { value: 0 }, uTravel: { value: 0 }, uPx: { value: px }, uColor: { value: new THREE.Color(0xffffff) }, uDepth: { value: DEPTH } },
+      vertexShader: [
+        "uniform float uTime, uTravel, uPx, uDepth; uniform vec3 uColor;",
+        "varying float vA; varying vec3 vC;",
+        "void main(){",
+        "  vec3 p = position;",
+        "  float d = mod(p.z + uTravel, uDepth);",
+        "  p.z = d - uDepth + 3.0;",
+        "  float w = sin(p.x * 0.33 + uTime * 0.7) * 0.34 + sin(d * 0.52 - uTime * 1.1) * 0.30 + sin((p.x + d) * 0.17 + uTime * 0.45) * 0.50;",
+        "  p.y = -3.0 + w;",
+        "  vec4 mv = modelViewMatrix * vec4(p, 1.0);",
+        "  gl_PointSize = uPx * (1.5 + w * 1.3) * (34.0 / -mv.z);",
+        "  vA = smoothstep(0.0, 14.0, d) * smoothstep(uDepth, uDepth - 6.0, d) * (0.45 + w * 0.5);",
+        "  vC = uColor;",
+        "  gl_Position = projectionMatrix * mv;",
+        "}"].join("\n"),
+      fragmentShader: pointFrag
+    });
+    var sea = new THREE.Points(seaGeo, seaMat); sea.frustumCulled = false; scene.add(sea);
+
+    /* --- drifting sparkles (sea spray by day, fireflies and stars by night) --- */
+    var DUST = 1700, DD = 70;
+    var dp = new Float32Array(DUST * 3), ds = new Float32Array(DUST);
+    for (var i = 0; i < DUST; i++) {
+      dp[i * 3] = (Math.random() - 0.5) * 46; dp[i * 3 + 1] = -2.5 + Math.random() * 16; dp[i * 3 + 2] = Math.random() * DD; ds[i] = Math.random();
+    }
+    var dustGeo = new THREE.BufferGeometry();
+    dustGeo.setAttribute("position", new THREE.BufferAttribute(dp, 3));
+    dustGeo.setAttribute("aSeed", new THREE.BufferAttribute(ds, 1));
+    var dustMat = new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      uniforms: { uTime: { value: 0 }, uTravel: { value: 0 }, uPx: { value: px }, uNight: { value: 0 }, uDepth: { value: DD } },
+      vertexShader: [
+        "uniform float uTime, uTravel, uPx, uNight, uDepth; attribute float aSeed;",
+        "varying float vA; varying vec3 vC;",
+        "void main(){",
+        "  vec3 p = position;",
+        "  float d = mod(p.z + uTravel * (0.6 + aSeed * 0.8), uDepth);",
+        "  p.z = d - uDepth + 4.0;",
+        "  p.x += sin(uTime * 0.3 + aSeed * 40.0) * 0.6;",
+        "  p.y += cos(uTime * 0.25 + aSeed * 23.0) * 0.5;",
+        "  vec4 mv = modelViewMatrix * vec4(p, 1.0);",
+        "  float tw = 0.55 + 0.45 * sin(uTime * (1.0 + aSeed * 3.0) + aSeed * 90.0);",
+        "  gl_PointSize = uPx * (1.2 + aSeed * 2.6 + uNight * 1.6) * (26.0 / -mv.z);",
+        "  vA = smoothstep(0.0, 12.0, d) * smoothstep(uDepth, uDepth - 5.0, d) * mix(0.55, tw, 0.4 + uNight * 0.6);",
+        "  vec3 day = mix(vec3(1.0), vec3(1.0, 0.95, 0.75), aSeed);",
+        "  vec3 night = mix(vec3(1.0, 0.86, 0.45), vec3(0.6, 0.95, 1.0), step(0.6, aSeed));",
+        "  vC = mix(day, night, uNight);",
+        "  gl_Position = projectionMatrix * mv;",
+        "}"].join("\n"),
+      fragmentShader: pointFrag
+    });
+    var dust = new THREE.Points(dustGeo, dustMat); dust.frustumCulled = false; scene.add(dust);
+
+    /* --- low-poly shapes in the game's colours --- */
+    var hemi = new THREE.HemisphereLight(0xffffff, 0x1c7fa8, 0.95); scene.add(hemi);
+    var sunL = new THREE.DirectionalLight(0xfff0cc, 0.9); sunL.position.set(6, 8, 4); scene.add(sunL);
+    var cols = [0xff7a59, 0x18b6b0, 0xfff1d6, 0xffc94d, 0x2d7fd3, 0xff9fb0];
+    var geos = [new THREE.IcosahedronGeometry(1, 0), new THREE.OctahedronGeometry(1, 0), new THREE.TorusGeometry(0.8, 0.3, 6, 10), new THREE.DodecahedronGeometry(0.9, 0)];
+    var shapes = [], SD = 80;
+    for (var s = 0; s < 22; s++) {
+      var m = new THREE.Mesh(geos[s % geos.length], new THREE.MeshStandardMaterial({ color: cols[s % cols.length], flatShading: true, roughness: 0.55, metalness: 0.05 }));
+      var side = s % 2 ? 1 : -1;
+      m.userData = { x: side * (5.5 + Math.random() * 10), y: -1.2 + Math.random() * 7.5, z: s / 22 * SD, sc: 0.45 + Math.random() * 0.9, sp: 0.2 + Math.random() * 0.5, ph: Math.random() * 6.28 };
+      scene.add(m); shapes.push(m);
+    }
+
+    function resize() {
+      renderer.setSize(innerWidth, innerHeight, false);
+      camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+    }
+    addEventListener("resize", resize); resize();
+
+    var dayC = new THREE.Color(0xffffff), nightC = new THREE.Color(0x6fc6ff);
+    return function render(T, time) {
+      var travel = T * 16 + time * 0.7;
+      var night = smooth(4.3, 5.6, T);
+      seaMat.uniforms.uTime.value = time; seaMat.uniforms.uTravel.value = travel;
+      seaMat.uniforms.uColor.value.copy(dayC).lerp(nightC, night);
+      dustMat.uniforms.uTime.value = time; dustMat.uniforms.uTravel.value = travel * 0.8; dustMat.uniforms.uNight.value = night;
+      hemi.intensity = lerp(0.95, 0.35, night); sunL.intensity = lerp(0.9, 0.25, night);
+      for (var i = 0; i < shapes.length; i++) {
+        var m = shapes[i], u = m.userData;
+        var d = (u.z + travel) % SD;
+        var k = smooth(0, 12, d) * (1 - smooth(SD - 8, SD - 1, d));
+        m.position.set(u.x, u.y + Math.sin(time * u.sp + u.ph) * 0.5, d - SD + 5);
+        m.scale.setScalar(u.sc * k + 0.0001);
+        m.rotation.x = time * u.sp * 0.6 + u.ph; m.rotation.y = time * u.sp * 0.4;
+      }
+      camera.position.x = smx * 0.7; camera.position.y = 0.6 - smy * 0.35;
+      camera.lookAt(smx * 0.2, 0.3, -20);
+      renderer.render(scene, camera);
+    };
+  }
+
+  /* ================= frame loop ================= */
+  var t0 = performance.now(), last = t0;
+  function frame(now) {
+    var time = (now - t0) / 1000;
+    var dt = Math.min((now - last) / 1000, 0.25); last = now;
+    var ease = 1 - Math.exp(-dt * 4.5);      // same feel at any frame rate
+    cur += (target - cur) * ease;
+    if (Math.abs(target - cur) < 0.00002) cur = target;
+    smx += (mx - smx) * ease * 0.7; smy += (my - smy) * ease * 0.7;
+    var T = cur * END;
+    var phone = innerWidth <= 800;
+
+    /* sky + sun */
+    var s = skyAt(T);
+    sky.style.background = "linear-gradient(180deg," + rgb(s[0]) + " 0%," + rgb(s[1]) + " 100%)";
+    sun.style.transform = "translate3d(" + (-smx * 14) + "px," + (lerp(16, 96, smooth(0, 5.2, T)) * innerHeight / 100) + "px,0)";
+    sun.style.opacity = 1 - smooth(4.6, 5.4, T);
+
+    /* title */
+    var ho = 1 - smooth(0.05, 0.55, T);
+    hero.style.opacity = ho;
+    hero.style.visibility = ho > 0.001 ? "visible" : "hidden";
+    hero.style.transform = "scale(" + (1 + T * 1.6) + ")";
+
+    /* cards fly towards the viewer, one after another */
+    world.style.transform = "rotateY(" + (smx * 3) + "deg) rotateX(" + (-smy * 2) + "deg)";
+    var focusZ = phone ? -140 : -240;
+    for (var i = 0; i < N; i++) {
+      var el = cards[i];
+      var z = (T - (i + 1)) * SPACING + focusZ;
+      var o = smooth(-1750, -950, z) * (1 - smooth(120, 640, z));
+      if (o <= 0.001) { if (el._on !== false) { el.style.visibility = "hidden"; el._on = false; } continue; }
+      if (el._on !== true) { el.style.visibility = "visible"; el._on = true; }
+      var side = i % 2 === 0 ? 1 : -1;
+      var x = phone ? 0 : side * innerWidth * 0.2;
+      var y = (phone ? -innerHeight * 0.13 : 0) + Math.sin(time * 0.8 + i * 1.7) * 10;
+      var ry = (phone ? 0 : -side * 13) + Math.sin(time * 0.5 + i) * 2;
+      el.style.opacity = o;
+      el.style.transform = "translate3d(" + x + "px," + y + "px," + z + "px) rotateY(" + ry + "deg) rotateZ(" + (side * 1.5) + "deg)";
+    }
+
+    /* captions */
+    for (var c = 0; c < N; c++) {
+      var dist = T - (c + 1);
+      var co = 1 - smooth(0.16, 0.46, Math.abs(dist));
+      caps[c].style.opacity = co;
+      caps[c].style.transform = "translate3d(0," + ((phone ? 0 : -50) + dist * -4) + "%,0) translateY(" + (dist * -60) + "px)";
+    }
+
+    /* ending */
+    var fo = smooth(N + 0.45, N + 0.95, T);
+    finale.style.opacity = fo;
+    finale.style.visibility = fo > 0.001 ? "visible" : "hidden";
+    finale.style.transform = "scale(" + lerp(0.86, 1, fo) + ")";
+
+    var active = Math.round(T);
+    for (var k = 0; k < dots.length; k++) dots[k].classList.toggle("on", k === active);
+
+    if (gl) gl(T, time);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
